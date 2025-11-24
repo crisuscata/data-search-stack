@@ -1,9 +1,9 @@
 [
   {
     "id": "p001",
-    "name": "Running Shoes",
+    "name": "Running Shoes Adidas",
     "category": "shoes",
-    "price": 79.99
+    "price": 79.55
   },
   {
     "id": "p002",
@@ -28,6 +28,12 @@
     "name": "New Star Sneakers",
     "category": "shoes",
     "price": 500.0
+  },
+  {
+    "id": "p006",
+    "name": "Running Shoes NIKE",
+    "category": "shoes",
+    "price": 40.0
   }
 ]
 
