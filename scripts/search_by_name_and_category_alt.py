@@ -1,3 +1,5 @@
+import json
+
 import typesense
 
 client = typesense.Client({
@@ -16,6 +18,8 @@ search_parameters = {
 }
 
 results = client.collections['products'].documents.search(search_parameters)
-print(results)
+
+# Pretty-print the JSON response
+print(json.dumps(results, indent=2, ensure_ascii=False))
 
 

@@ -1,3 +1,5 @@
+import json
+
 from typesense_client import get_products_collection
 
 # Sample products to insert
@@ -44,10 +46,9 @@ def main():
         {'action': 'upsert'}
     )
 
-    print("Result:", response)
+    print("Result:")
+    print(json.dumps(response, indent=2, ensure_ascii=False))
 
 
 if __name__ == '__main__':
     main()
-
-

@@ -39,7 +39,8 @@ def main():
         {"action": "upsert"},
     )
 
-    print("Import result:", response)
+    print("Import result:")
+    print(json.dumps(response, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

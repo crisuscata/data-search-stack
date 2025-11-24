@@ -1,3 +1,5 @@
+import json
+
 from typesense_client import get_products_collection
 
 
@@ -11,10 +13,11 @@ def main():
     }
 
     results = collection.documents.search(search_parameters)
-    print(results)
+
+    # Pretty-print the JSON response
+    print(json.dumps(results, indent=2, ensure_ascii=False))
 
 
 if __name__ == '__main__':
     main()
-
 

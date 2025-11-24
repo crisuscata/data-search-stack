@@ -1,3 +1,5 @@
+import json
+
 import typesense
 
 client = typesense.Client({
@@ -10,6 +12,8 @@ client = typesense.Client({
     'connection_timeout_seconds': 2
 })
 
-print(client.collections.retrieve())
+collections = client.collections.retrieve()
 
+# Pretty-print the JSON response
+print(json.dumps(collections, indent=2, ensure_ascii=False))
 
