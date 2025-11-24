@@ -1,10 +1,11 @@
 from typesense_client import get_products_collection
 
+
 def main():
     collection = get_products_collection()
 
     search_parameters = {
-        'q': 'tenis',                 # puede estar vacío: '' si solo filtras
+        'q': 'tenis',                 # can be empty: '' if you only filter
         'query_by': 'name',
         'filter_by': 'price:>=50 && price:<=100'
     }
@@ -15,3 +16,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+

@@ -1,6 +1,6 @@
 from typesense_client import get_products_collection
 
-# Productos a insertar
+# Sample products to insert
 products = [
     {
         "id": "p001",
@@ -38,14 +38,16 @@ products = [
 def main():
     collection = get_products_collection()
 
-    # Insertar varios documentos
+    # Insert multiple documents
     response = collection.documents.import_(
         products,
         {'action': 'upsert'}
     )
 
-    print("Resultado:", response)
+    print("Result:", response)
 
 
 if __name__ == '__main__':
     main()
+
+

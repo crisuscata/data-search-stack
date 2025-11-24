@@ -10,10 +10,6 @@ client = typesense.Client({
     'connection_timeout_seconds': 2
 })
 
-search_parameters = {
-    'q': 'calzado deportivos',
-    'query_by': 'name,category'
-}
+print(client.collections.retrieve())
 
-results = client.collections['products'].documents.search(search_parameters)
-print(results)
+
