@@ -6,7 +6,7 @@ def main():
 
     # Search by text in the "name" field
     search_parameters = {
-        'q': 'zapatos',           # text to search
+        'q': 'Running',           # text to search
         'query_by': 'name'        # fields to search on
     }
 

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "p001",
+    "name": "Running Shoes",
+    "category": "shoes",
+    "price": 79.99
+  },
+  {
+    "id": "p002",
+    "name": "Puma Running Sneakers",
+    "category": "shoes",
+    "price": 60.5
+  },
+  {
+    "id": "p003",
+    "name": "Nike Sandals",
+    "category": "shoes",
+    "price": 45.9
+  },
+  {
+    "id": "p004",
+    "name": "Timberland Boots",
+    "category": "boots",
+    "price": 120.0
+  },
+  {
+    "id": "p005",
+    "name": "New Star Sneakers",
+    "category": "shoes",
+    "price": 500.0
+  }
+]
+
+

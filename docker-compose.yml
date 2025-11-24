@@ -1,19 +1,11 @@
 services:
   typesense:
-    image: typesense/typesense:27.1
+    image: typesense/typesense:0.25.1
     container_name: typesense-server
     restart: always
-    command: '--data-dir /data --api-key=xyz123clave_admin_secreta --enable-cors'
+    command: '--data-dir /data --api-key=xyz123 --enable-cors'
     ports:
       - "8108:8108"
     volumes:
-      - typesense_data:/data
-    environment:
-      # Define tu API Key aquí
-      - TYPESENSE_API_KEY=xyz123clave_admin_secreta
-      - TYPESENSE_DATA_DIR=/data
-      - TYPESENSE_ENABLE_CORS=true
-
-volumes:
-  typesense_data:
-    driver: local
+      # Map a local folder in the repo to /data in the container
+      - ./typesense-config/data:/data
