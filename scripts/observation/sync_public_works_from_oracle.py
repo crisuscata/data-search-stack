@@ -11,7 +11,7 @@ PROJECT_SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(PROJECT_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(PROJECT_SCRIPTS_DIR))
 
-from typesense_client import get_client, get_public_works_collection
+from typesense_client import get_client, get_ido_odop_public_works_collection
 
 
 # -----------------------------
@@ -40,57 +40,56 @@ def get_oracle_connection() -> oracledb.Connection:
     return oracledb.connect(user=user, password=password, dsn=dsn)
 
 
-# -----------------------------
-# Typesense schema & helpers
-# -----------------------------
-
-PUBLIC_WORKS_COLLECTION_NAME = "public_works"
-
-
 def ensure_public_works_collection() -> None:
     """
-    Ensure the 'public_works' collection exists in Typesense with an appropriate schema.
+    Ensure the Typesense collection that stores IDO_ODOP public works
+    exists with an appropriate schema.
     If it already exists, this function does nothing.
     """
     client = get_client()
 
+    schema = {
+        "name": "ido_odop_public_works",
+        "fields": [
+            {"name": "id", "type": "string"},
+            {"name": "name", "type": "string"},
+            {"name": "snip_code", "type": "string", "facet": True},
+            {"name": "cui_code", "type": "string", "facet": True},
+            {"name": "infobras_id", "type": "string", "facet": True},
+            {"name": "ubigeo", "type": "string", "facet": True, "optional": True},
+            # execution_year is the default_sorting_field, so it MUST NOT be optional
+            {"name": "execution_year", "type": "int32"},
+            {"name": "state_id", "type": "int32", "optional": True},
+            {"name": "status", "type": "string", "facet": True, "optional": True},
+            {"name": "lat", "type": "float", "optional": True},
+            {"name": "lng", "type": "float", "optional": True},
+            {"name": "start_date", "type": "string", "optional": True},
+            {"name": "end_date", "type": "string", "optional": True},
+            {"name": "entity_id", "type": "int32", "optional": True},
+            {"name": "amount_viable", "type": "float", "optional": True},
+            {"name": "amount_approved", "type": "float", "optional": True},
+            {"name": "source_amount", "type": "string", "optional": True},
+            {"name": "source_cui", "type": "string", "optional": True},
+            {"name": "source_name", "type": "string", "optional": True},
+            {"name": "execution_mode_id", "type": "int32", "optional": True},
+            {"name": "investment_phase_id", "type": "int32", "optional": True},
+            {"name": "resident_id", "type": "int32", "optional": True},
+            {"name": "supervisor_id", "type": "int32", "optional": True},
+            {"name": "contractor_id", "type": "int32", "optional": True},
+        ],
+        # Use execution year as default sorting field
+        "default_sorting_field": "execution_year",
+    }
+
     try:
-        client.collections[PUBLIC_WORKS_COLLECTION_NAME].retrieve()
-        return
-    except Exception:
-        # Collection does not exist (or another error) -> try to create it.
-        schema = {
-            "name": PUBLIC_WORKS_COLLECTION_NAME,
-            "fields": [
-                {"name": "id", "type": "string"},
-                {"name": "name", "type": "string"},
-                {"name": "snip_code", "type": "string", "facet": True},
-                {"name": "cui_code", "type": "string", "facet": True},
-                {"name": "infobras_id", "type": "string", "facet": True},
-                {"name": "ubigeo", "type": "string", "facet": True, "optional": True},
-                {"name": "execution_year", "type": "int32", "optional": True},
-                {"name": "state_id", "type": "int32", "optional": True},
-                {"name": "status", "type": "string", "facet": True, "optional": True},
-                {"name": "lat", "type": "float", "optional": True},
-                {"name": "lng", "type": "float", "optional": True},
-                {"name": "start_date", "type": "string", "optional": True},
-                {"name": "end_date", "type": "string", "optional": True},
-                {"name": "entity_id", "type": "int32", "optional": True},
-                {"name": "amount_viable", "type": "float", "optional": True},
-                {"name": "amount_approved", "type": "float", "optional": True},
-                {"name": "source_amount", "type": "string", "optional": True},
-                {"name": "source_cui", "type": "string", "optional": True},
-                {"name": "source_name", "type": "string", "optional": True},
-                {"name": "execution_mode_id", "type": "int32", "optional": True},
-                {"name": "investment_phase_id", "type": "int32", "optional": True},
-                {"name": "resident_id", "type": "int32", "optional": True},
-                {"name": "supervisor_id", "type": "int32", "optional": True},
-                {"name": "contractor_id", "type": "int32", "optional": True},
-            ],
-            # Use execution year as default sorting field
-            "default_sorting_field": "execution_year",
-        }
         client.collections.create(schema)
+    except Exception as exc:  # noqa: BLE001
+        # If the collection already exists, Typesense returns an error;
+        # we can safely ignore that, but re-raise anything unexpected.
+        message = str(exc)
+        if "already exists" in message or "Collection exists" in message:
+            return
+        raise
 
 
 def oracle_row_to_document(row: Dict[str, Any]) -> Dict[str, Any]:
@@ -125,13 +124,15 @@ def oracle_row_to_document(row: Dict[str, Any]) -> Dict[str, Any]:
     name = row.get("NO_INVERSION") or ""
     ubigeo = row.get("CO_UBIGEO") or ""
     execution_year = to_int(row.get("NU_ANIO_EJECUCION")) or 0
+    infobras_raw = row.get("ID_INFOBRAS")
+    infobras_id = str(infobras_raw) if infobras_raw is not None else ""
 
     return {
         "id": str(row["ID_OBRA_PUBLICA"]),
         "name": name,
         "snip_code": row.get("CO_SNIP"),
         "cui_code": row.get("CO_CUI"),
-        "infobras_id": row.get("ID_INFOBRAS"),
+        "infobras_id": infobras_id,
         "ubigeo": ubigeo,
         "execution_year": execution_year,
         "state_id": to_int(row.get("ID_ESTADO_OBRA")),
@@ -217,7 +218,7 @@ def main() -> None:
       - Run: python -m observation.sync_public_works_from_oracle
     """
     ensure_public_works_collection()
-    collection = get_public_works_collection()
+    collection = get_ido_odop_public_works_collection()
 
     conn = get_oracle_connection()
     try:
